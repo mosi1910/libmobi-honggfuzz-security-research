@@ -1,0 +1,13 @@
+test	version	exit_code	status	input	log
+valid-seed	vulnerable	0	SUCCESS	seeds-original/sample-obfuscated-fonts.mobi	findings/customfix-regression/valid-seed-vulnerable.log
+valid-seed	patched	0	SUCCESS	seeds-original/sample-obfuscated-fonts.mobi	findings/customfix-regression/valid-seed-patched.log
+one-byte	vulnerable	-6	SAME BUG	findings/crash-02/one-byte-reproducer.mobi	findings/customfix-regression/one-byte-vulnerable.log
+one-byte	patched	0	SUCCESS	findings/crash-02/one-byte-reproducer.mobi	findings/customfix-regression/one-byte-patched.log
+minimized	vulnerable	-6	SAME BUG	findings/crash-02/record-minimized.mobi	findings/customfix-regression/minimized-vulnerable.log
+minimized	patched	0	SUCCESS	findings/crash-02/record-minimized.mobi	findings/customfix-regression/minimized-patched.log
+hf09-crash	vulnerable	-6	SAME BUG	findings/crash-01/crash.mobi	findings/customfix-regression/hf09-crash-vulnerable.log
+hf09-crash	patched	1	REJECTED/ERROR	findings/crash-01/crash.mobi	findings/customfix-regression/hf09-crash-patched.log
+hf13-crash	vulnerable	-6	SAME BUG	findings/crash-02/crash.mobi	findings/customfix-regression/hf13-crash-vulnerable.log
+hf13-crash	patched	1	REJECTED/ERROR	findings/crash-02/crash.mobi	findings/customfix-regression/hf13-crash-patched.log
+hf19-crash	vulnerable	-6	SAME BUG	findings/ubsan-crash-01/crash.mobi	findings/customfix-regression/hf19-crash-vulnerable.log
+hf19-crash	patched	0	SUCCESS	findings/ubsan-crash-01/crash.mobi	findings/customfix-regression/hf19-crash-patched.log

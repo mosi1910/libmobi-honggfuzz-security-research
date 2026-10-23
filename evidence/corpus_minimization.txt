@@ -1,0 +1,26 @@
+Honggfuzz Corpus Minimization - HF-14
+
+Source experiment: HF-13-asan-1h
+Minimization experiment: HF-14-corpus-minimization
+
+Original corpus files: 1467
+Minimized corpus files: 995
+Files removed: 472
+File count reduction: 32.17%
+
+Original corpus size: 480881076 bytes
+Minimized corpus size: 276162698 bytes
+Bytes removed: 204718378
+Size reduction: 42.57%
+
+HF-14 iterations: 24191
+HF-14 runtime: 990 seconds
+HF-14 reported branch coverage: 20%
+HF-14 instrumented guards: 8103
+HF-14 reported crashes: 0
+HF-14 reported timeouts: 0
+
+Note:
+Coverage percentage equality does not independently
+prove identical edge or branch coverage sets.
+Crash reproducers are retained separately in findings/.

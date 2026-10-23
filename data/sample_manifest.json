@@ -1,0 +1,13 @@
+{
+  "input_files_publicly_available": false,
+  "sample_seed_sha256": "34fc67043eeeaa6563481d6ea2fea1b5349cb73e459a1f10e3aa09186f56302e",
+  "one_byte_reproducer_sha256": "3153f56016c369e844c91372a1af1b93584318c937e4e46050eec0e0357e0bc3",
+  "minimized_reproducer_sha256": "724100e07b47e281b3f8158ff7008a7bfd737c45fc84d4414847113ab3f7948c",
+  "one_byte_modified_zero_based_offset": 15378,
+  "original_byte": "0x00",
+  "modified_byte": "0xFF",
+  "sample_seed_size_bytes": 84412,
+  "one_byte_size_bytes": 84412,
+  "minimized_size_bytes": 15531,
+  "reason_samples_not_included": "Source and derivative MOBI input redistribution permissions not independently established."
+}

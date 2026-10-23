@@ -1,0 +1,82 @@
+Collected (system clock): 2026-10-22T04:50:06-04:00
+System: Linux 7.1.5+kali-amd64 x86_64 GNU/Linux
+
+OS:
+PRETTY_NAME="Kali GNU/Linux Rolling"
+VERSION_ID="2026.3"
+
+CPU:
+Architecture:                            x86_64
+CPU(s):                                  4
+Model name:                              Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz
+Hypervisor vendor:                       VMware
+
+RAM:
+               total        used        free      shared  buff/cache   available
+Mem:           1.9Gi       1.4Gi        71Mi        15Mi       586Mi       484Mi
+Swap:          953Mi       640Mi       312Mi
+
+Disk:
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        79G   23G   53G  30% /
+
+Clang:
+Debian clang version 21.1.8 (13)
+
+GCC:
+gcc (Debian 16.2.0-3) 16.2.0
+
+CMake:
+cmake version 4.3.4
+
+Honggfuzz:
+Usage: honggfuzz/honggfuzz [options] -- path_to_command [args]
+Options:
+ --help|-h 
+	Help plz..
+ --input|-i VALUE
+	Path to a directory containing initial file corpus
+ --output|-o VALUE
+	Output data (new dynamic coverage corpus, or the minimized coverage corpus) is written to this directory (default: input directory is re-used)
+
+Repo commits/tags:
+honggfuzz: commit=940b958dfeb6f9131fd846cae31fcc0fe996ae98
+  tag=oss-fuzz-10-g940b958d
+  modified files:
+libmobi: commit=aac5b1f578b284b2f886d6d25cde22a33d8534f8
+  tag=v0.10
+  modified files:
+?? Makefile.in
+?? aclocal.m4
+?? ar-lib
+?? autom4te.cache/
+?? compile
+?? config.guess
+?? config.h.in
+?? config.sub
+?? configure
+?? depcomp
+?? install-sh
+?? ltmain.sh
+?? m4/
+?? missing
+?? src/Makefile.in
+?? test-driver
+?? tests/Makefile.in
+?? tools/Makefile.in
+versions/libmobi-v0.11: commit=864e3a86f2565b650f203ec6b1fddc4fb16df925
+  tag=v0.11
+  modified files:
+ M src/opf.c
+?? src/opf.c.backup
+versions/libmobi-v0.12: commit=85dcfe803fc2a21020ddcf15c3eb66b93d388add
+  tag=v0.12
+  modified files:
+
+Mobitool executables:
+build-asan/tools/mobitool: libmobi: 0.10
+  ASan symbol: not found
+versions/build-0.11-asan/tools/mobitool: libmobi: 0.11
+  ASan symbol: not found
+versions/build-0.12-asan/tools/mobitool: libmobi: 0.12
+  ASan symbol: not found

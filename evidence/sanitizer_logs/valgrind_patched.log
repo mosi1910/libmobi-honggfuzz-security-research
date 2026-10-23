@@ -1,0 +1,15 @@
+==468786== Memcheck, a memory error detector
+==468786== Copyright (C) 2002-2026, and GNU GPL'd, by Julian Seward et al.
+==468786== Using Valgrind-3.27.1 and LibVEX; rerun with -h for copyright info
+==468786== Command: /home/kali/Desktop/Fuzzing_Project/versions/build-0.10-customfix-noasan/tools/mobitool -s -o /tmp/tmpmh8huou6 /home/kali/Desktop/Fuzzing_Project/findings/crash-02/one-byte-reproducer.mobi
+==468786== Parent PID: 468785
+==468786== 
+==468786== 
+==468786== HEAP SUMMARY:
+==468786==     in use at exit: 0 bytes in 0 blocks
+==468786==   total heap usage: 567 allocs, 567 frees, 310,407 bytes allocated
+==468786== 
+==468786== All heap blocks were freed -- no leaks are possible
+==468786== 
+==468786== For lists of detected and suppressed errors, rerun with: -s
+==468786== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

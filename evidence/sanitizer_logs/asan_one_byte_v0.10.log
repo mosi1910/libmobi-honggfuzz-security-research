@@ -1,0 +1,22 @@
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==3504444==ERROR: AddressSanitizer: SEGV on unknown address 0x7ebb3b9f4818 (pc 0x55f3bdeac56b bp 0x7ffe7ee023f0 sp 0x7ffe7ee02320 T0)
+==3504444==The signal is caused by a READ memory access.
+    #0 0x55f3bdeac56b in mobi_decode_font_resource /home/kali/Desktop/Fuzzing_Project/build-asan/src/../../libmobi/src/util.c:2543
+    #1 0x55f3bdeabf9a in mobi_add_font_resource /home/kali/Desktop/Fuzzing_Project/build-asan/src/../../libmobi/src/util.c:2477:20
+    #2 0x55f3bde8ae17 in mobi_reconstruct_resources /home/kali/Desktop/Fuzzing_Project/build-asan/src/../../libmobi/src/parse_rawml.c:608:19
+    #3 0x55f3bde96ad4 in mobi_parse_rawml_opt /home/kali/Desktop/Fuzzing_Project/build-asan/src/../../libmobi/src/parse_rawml.c:2044:11
+    #4 0x55f3bde7463d in loadfilename /home/kali/Desktop/Fuzzing_Project/build-asan/tools/../../libmobi/tools/mobitool.c:852:20
+    #5 0x55f3bde7463d in main /home/kali/Desktop/Fuzzing_Project/build-asan/tools/../../libmobi/tools/mobitool.c:1051:11
+    #6 0x7faa3d663fb9  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29fb9) (BuildId: eaf531ba3537da13b7c46381d83b989c397e1d23)
+    #7 0x7faa3d6640d6 in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a0d6) (BuildId: eaf531ba3537da13b7c46381d83b989c397e1d23)
+    #8 0x55f3bdd87930 in _start (/home/kali/Desktop/Fuzzing_Project/build-asan/tools/mobitool+0x3f930) (BuildId: 1b18279b1cec110611e202aa781a4c8ced8a5800)
+
+==3504444==Register values:
+rax = 0x00000f7b4793c134  rbx = 0x00007ffe7ee02320  rcx = 0x0000000000000000  rdx = 0x00000000022ac52f  
+rdi = 0x0000000000000000  rsi = 0x000055f3bdfa05e0  rbp = 0x00007ffe7ee023f0  rsp = 0x00007ffe7ee02320  
+ r8 = 0x000055f3be94c200   r9 = 0x000055f3be90a9c0  r10 = 0x000055f3c796c240  r11 = 0x0000000000000000  
+r12 = 0x00007ebb3b9f4818  r13 = 0x0000000000000001  r14 = 0x00007bda3c9e09a0  r15 = 0x000000000000002c  
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV /home/kali/Desktop/Fuzzing_Project/build-asan/src/../../libmobi/src/util.c:2543 in mobi_decode_font_resource
+==3504444==ABORTING

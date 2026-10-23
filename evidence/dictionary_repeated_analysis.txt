@@ -1,0 +1,72 @@
+Honggfuzz Dictionary Experiment - Repeated Comparison
+======================================================
+
+Target: libmobi v0.10
+Sanitizer: AddressSanitizer
+Initial seeds: 9 per experiment
+Runtime: 3601 seconds per experiment
+Threads: 1
+Dictionary: 15 MOBI tokens
+
+EXPERIMENT RESULTS
+
+HF-15: Without dictionary
+Iterations: 89267
+New units: 1418
+Coverage: 20%
+Crashes: 0
+
+HF-16: With dictionary
+Iterations: 88734
+New units: 1407
+Coverage: 20%
+Crashes: 0
+
+HF-20: With dictionary (repeat)
+Iterations: 68283
+New units: 1309
+Coverage: 19%
+Crashes: 0
+
+HF-21: Without dictionary (repeat)
+Iterations: 77005
+New units: 1275
+Coverage: 20%
+Crashes: 0
+
+AVERAGE RESULTS
+
+Without dictionary:
+Iterations: 83136
+New units: 1346.5
+Reported coverage: 20%
+
+With dictionary:
+Iterations: 78508.5
+New units: 1358
+Reported coverage: 19.5%
+
+INTERPRETATION
+
+Dictionary-enabled runs averaged 5.57% fewer iterations,
+but 0.85% more new units.
+
+There was no consistent coverage improvement and no
+new crash was detected in these four experiments.
+
+The results do not establish that dictionary-based
+fuzzing is better or worse for this target.
+
+LIMITATIONS
+
+Only two runs per configuration were performed.
+Execution speed varied between runs.
+Reported coverage percentages are rounded.
+Random mutation and system variability affect results.
+A larger number of independent runs would be required
+for a statistically reliable comparison.
+
+CONCLUSION
+
+The 15-token MOBI dictionary did not demonstrate
+a clear, reproducible advantage in this experiment.

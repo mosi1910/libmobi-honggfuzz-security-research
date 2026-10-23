@@ -1,0 +1,26 @@
+Target: libmobi v0.10
+Compiler: Debian Clang 21.1.8
+Compiler wrapper: honggfuzz/hfuzz_cc/hfuzz-clang
+
+Common configure options:
+--disable-shared --enable-static --with-libxml2=no
+
+Non-ASan build:
+CC = /home/kali/Desktop/Fuzzing_Project/honggfuzz/hfuzz_cc/hfuzz-clang -std=gnu23
+CFLAGS = -O1 -g -fno-omit-frame-pointer
+CPPFLAGS = 
+LDFLAGS = 
+LIBS = 
+
+ASan build:
+CC = /home/kali/Desktop/Fuzzing_Project/honggfuzz/hfuzz_cc/hfuzz-clang -std=gnu23
+CFLAGS = -O1 -g -fno-omit-frame-pointer -fsanitize=address
+CPPFLAGS = 
+LDFLAGS = -fsanitize=address
+LIBS = 
+
+ASan report functions in non-ASan binary:
+0
+
+ASan report functions in ASan binary:
+34

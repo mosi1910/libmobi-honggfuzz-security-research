@@ -1,0 +1,55 @@
+Valgrind Memcheck Analysis
+==========================
+
+Target: libmobi v0.10
+Tool: Valgrind 3.27.1
+Compared versions:
+- Original vulnerable libmobi v0.10
+- Custom-patched libmobi v0.10
+
+Results:
+
+1. Valid seed
+   Vulnerable: 0 Memcheck errors
+   Patched:    0 Memcheck errors
+
+2. One-byte reproducer
+   Vulnerable: Invalid read of size 1
+   Patched:    0 Memcheck errors
+
+3. Minimized reproducer
+   Vulnerable: Invalid read of size 1
+   Patched:    0 Memcheck errors
+
+Root cause location:
+mobi_decode_font_resource
+libmobi/src/util.c:2543
+
+The vulnerable implementation fails to validate
+the XOR key offset and length against the font
+resource buffer boundaries before accessing memory.
+
+The custom patch introduces bounds validation
+and returns MOBI_DATA_CORRUPT for invalid offsets.
+
+Both vulnerable crash reproductions reported:
+- One Memcheck error from one context
+- Zero definitely lost bytes
+- Zero indirectly lost bytes
+- Zero possibly lost bytes
+
+Conclusion:
+Memcheck independently confirmed the invalid
+one-byte read previously observed using ASan.
+
+The custom patch eliminated this reported invalid
+read in both regression inputs, while the valid
+seed continued to execute successfully.
+
+These results do not prove the absence of all
+other memory-safety issues.
+
+Evidence:
+findings/valgrind-tests/
+findings/customfix-regression/
+findings/crash-02/custom-security-fix.patch

@@ -1,0 +1,21 @@
+
+===== LINES =====
+Original covered: 5921
+Minimized covered: 5921
+Lost: 0
+Gained: 0
+Identical: True
+
+===== BRANCHES =====
+Original covered: 2395
+Minimized covered: 2395
+Lost: 0
+Gained: 0
+Identical: True
+
+===== FUNCTIONS =====
+Original covered: 276
+Minimized covered: 276
+Lost: 0
+Gained: 0
+Identical: True

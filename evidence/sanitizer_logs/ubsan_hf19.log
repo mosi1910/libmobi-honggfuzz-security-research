@@ -1,0 +1,21 @@
+UndefinedBehaviorSanitizer:DEADLYSIGNAL
+==450587==ERROR: UndefinedBehaviorSanitizer: SEGV on unknown address 0x556144e87dd6 (pc 0x7f4a346539ce bp 0x7ffc90ca02d0 sp 0x7ffc90ca0240 T450587)
+==450587==The signal is caused by a READ memory access.
+    #0 0x7f4a346539ce in mobi_decode_font_resource /home/kali/Desktop/Fuzzing_Project/libmobi/src/util.c:2543:41
+    #1 0x7f4a34653594 in mobi_add_font_resource /home/kali/Desktop/Fuzzing_Project/libmobi/src/util.c:2477:20
+    #2 0x7f4a34637321 in mobi_reconstruct_resources /home/kali/Desktop/Fuzzing_Project/libmobi/src/parse_rawml.c:608:19
+    #3 0x7f4a3463e8ae in mobi_parse_rawml_opt /home/kali/Desktop/Fuzzing_Project/libmobi/src/parse_rawml.c:2044:11
+    #4 0x5560cd420bb4 in loadfilename /home/kali/Desktop/Fuzzing_Project/libmobi/tools/mobitool.c:852:20
+    #5 0x5560cd41d984 in main /home/kali/Desktop/Fuzzing_Project/libmobi/tools/mobitool.c:1051:11
+    #6 0x7f4a3419dfb9  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29fb9) (BuildId: eaf531ba3537da13b7c46381d83b989c397e1d23)
+    #7 0x7f4a3419e0d6 in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a0d6) (BuildId: eaf531ba3537da13b7c46381d83b989c397e1d23)
+    #8 0x5560cd3efd00 in _start (/home/kali/Desktop/Fuzzing_Project/build-ubsan-hfuzz/tools/mobitool+0x16d00) (BuildId: c552528914b473b2cb22156ac3e4129921bc18c2)
+
+==450587==Register values:
+rax = 0x00005560d6e39a00  rbx = 0x000000000000b0eb  rcx = 0x00005560e582f7b0  rdx = 0x0000000000000040  
+rdi = 0x00005560cde199c0  rsi = 0x00005560cddd8180  rbp = 0x00007ffc90ca02d0  rsp = 0x00007ffc90ca0240  
+ r8 = 0x00005560d6eb9a00   r9 = 0x00005560cd491b40  r10 = 0x0000000000000040  r11 = 0x0000000000000000  
+r12 = 0x00005560e582f701  r13 = 0x0000556144e87dd6  r14 = 0x0000000000000000  r15 = 0x0000556144e87dd6  
+UndefinedBehaviorSanitizer can not provide additional info.
+SUMMARY: UndefinedBehaviorSanitizer: SEGV /home/kali/Desktop/Fuzzing_Project/libmobi/src/util.c:2543:41 in mobi_decode_font_resource
+==450587==ABORTING
