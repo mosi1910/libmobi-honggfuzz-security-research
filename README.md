@@ -1,101 +1,83 @@
-# libmobi v0.10 — Honggfuzz Memory-Safety Research
+# Honggfuzz × libmobi | Memory-Safety Research
 
-> **Portfolio case study:** coverage-guided fuzzing, crash triage, root-cause analysis, patch validation, and corpus minimization for an older C e-book parser.
+**Investigating a historical memory-safety vulnerability in a C-based MOBI e-book parser.**  
+Honggfuzz · ASan · UBSan · Valgrind · Crash triage · Patch validation · LLVM coverage
 
-![Fuzzing workflow](assets/workflow.png)
-
-**Target:** [libmobi](https://github.com/bfabiszewski/libmobi) **v0.10** (`aac5b1f578b284b2f886d6d25cde22a33d8534f8`)  
-**File format:** MOBI e-books | **Harness:** `mobitool` CLI | **Fuzzer:** Honggfuzz  
-**Runtime environment:** Kali Linux 2026.3 in VMware; Clang 21.1.8  
-**Dynamic analysis:** AddressSanitizer (ASan), UndefinedBehaviorSanitizer (UBSan), and Valgrind Memcheck
-
-**Scope:** This repository documents **my Honggfuzz workstream** within a group software-security fuzzing assignment; it does not claim to represent the group's AFL++ or zzuf/Radamsa work.
-
-## What I investigated
-
-I ran and analyzed **21 numbered Honggfuzz campaigns**, of which **17 have machine-readable final summaries**. The experimental comparisons include ASan vs. non-ASan instrumentation, UBSan coverage feedback, a format-specific dictionary, and corpus minimization. I reproduced and investigated **one distinct historical out-of-bounds read** in font-resource deobfuscation, then tested a defensive bounds-check patch against ASan and Valgrind evidence.
-
-**Important:** This is a **rediscovery of an already-fixed historical issue**, *not* a previously unknown vulnerability or a new CVE. Upstream fixed the underlying boundary checks in April–May 2022, before libmobi v0.11. See [upstream initial fix](https://github.com/bfabiszewski/libmobi/commit/811bac3d32ec06d86cb131008d30dfa4b8ca1336) and [follow-up hardening](https://github.com/bfabiszewski/libmobi/commit/6269ea673cb583f7a2aab92dd0f8113274742b7d).
+> **Scope:** My Honggfuzz workstream in a university group project—not the group's AFL++ or zzuf/Radamsa work. The vulnerability was **already fixed upstream in 2022**; this is **independent reproduction and analysis**, not a new discovery or CVE.
 
 ## Key results
 
-| Result | Evidence |
-| --- | --- |
-| 21 numbered experiments; 17 parseable final summaries | [`data/campaigns.csv`](data/campaigns.csv) |
-| 3 crashing test inputs, deduplicated to **1 historical root cause** | [Finding analysis](docs/VULNERABILITY.md) |
-| HF-09: 565,277 executions in 28,801 seconds; 1 reported crash | [`data/campaigns.csv`](data/campaigns.csv) |
-| Original 84,412-byte sample: **one-byte mutation at offset 15,378** reproduces the fault | [Input manifest](data/sample_manifest.json), [reproducer generator](scripts/derive_reproducer.py) |
-| Structure-aware reduction to **15,531 bytes** (~81.6% smaller) | [Minimization notes](docs/VULNERABILITY.md) |
-| Corpus minimization: **1,467 → 995 inputs** (32.17% reduction) | [`evidence/corpus_minimization.txt`](evidence/corpus_minimization.txt) |
-| Corpus size: **480,881,076 → 276,162,698 bytes** (42.57% reduction) | [Minimization notes](docs/RESULTS.md) |
-| Exact covered LCOV identifiers preserved: **5,921 lines / 2,395 branches / 276 functions** | [`data/coverage/`](data/coverage/), [`scripts/compare_lcov.py`](scripts/compare_lcov.py) |
-| 12 recorded ASan regression cases (6 inputs × 2 builds) | [`data/regression_results.tsv`](data/regression_results.tsv) |
-| 6 recorded Valgrind cases (3 inputs × 2 builds) | [Valgrind notes](evidence/valgrind_analysis.txt) |
+| **21** experiments | **1** historical bug | **−42.57%** corpus size | **0** coverage identifiers lost |
+| :---: | :---: | :---: | :---: |
+| 17 verified final summaries | Font XOR-key out-of-bounds read | 480.9 MB → 276.2 MB | Identical archived LLVM LCOV sets |
 
-**Caveat:** *Executions/iterations* are not a separately measured count of mutation operations. Honggfuzz's reported branch coverage is not the same metric as LLVM source coverage. Two dictionary repeats per configuration are insufficient to establish a statistically reliable performance difference.
+**Explore:** [Vulnerability](docs/VULNERABILITY.md) · [Experiments](docs/RESULTS.md) · [Technical report (PDF)](report/technical_report.pdf) · [Reproduction](docs/REPRODUCIBILITY.md)
 
-## Experimental overview
+## The vulnerability
 
-![ASan vs no-ASan](assets/asan_controlled.png)
+A malformed MOBI `FONT` resource can supply an unchecked XOR-key offset. In **libmobi v0.10**, `mobi_decode_font_resource()` then reads outside the input buffer (`src/util.c`, around line 2543).
 
-- **With and without ASan:** Controlled smoke runs HF-10/11 and one-hour runs HF-12/13. The ASan run found a fault in HF-13; do **not** infer that ASan intrinsically improves throughput from these two runs.
-- **Dictionary trials:** HF-15/16 and reversed-order repeats HF-20/21. The 15-token dictionary produced no consistent advantage over the baseline.
-- **UBSan:** HF-17 lacked usable feedback instrumentation (0 guards); HF-18/19 enabled Honggfuzz coverage instrumentation (11,912 guards). HF-19 found an input reproducing the same historical bug; an explicit UBSan diagnostic for the bug was **not** established.
-- **Crash counting:** HF-04 contained timeout-related `SIGVTALRM` events; those are **not** two new memory-safety vulnerabilities. HF-05/06 used unintended persistent mode and are not comparable with the controlled campaigns.
+- **Reproducer:** One modified byte (`0x00 → 0xFF`) at offset **15,378** in an 84,412-byte input.
+- **Confirmation:** ASan detected the fault; Valgrind reported **`Invalid read of size 1`**. Crashes from **HF-09, HF-13 and HF-19** shared one root cause.
+- **Reduction:** Structure-aware input minimization produced a **15,531-byte** reproducer (**~81.6% smaller**).
+- **Mitigation:** A [demonstration bounds-check patch](patches/font_xor_bounds_check.patch) was evaluated in **12 ASan** and **6 Valgrind** regression executions; the same fault was not observed in patched test cases. This is not proof of complete memory safety.
 
-[All results and limitations →](docs/RESULTS.md)
+**Attribution:** Upstream had already [fixed the boundary checks (April 2022)](https://github.com/bfabiszewski/libmobi/commit/811bac3d32ec06d86cb131008d30dfa4b8ca1336) and [hardened them (May 2022)](https://github.com/bfabiszewski/libmobi/commit/6269ea673cb583f7a2aab92dd0f8113274742b7d). The research patch was not submitted upstream. No exact CVE is attributed to this flaw here.
 
-## Root cause and remediation
+[Full root-cause and regression analysis →](docs/VULNERABILITY.md)
 
-The observed fault is in `mobi_decode_font_resource()` (libmobi v0.10 `src/util.c`, approximately line 2543). Malformed font-resource header fields can make the XOR-key offset point outside the valid buffer; the decoding loop then dereferences invalid memory. ASan showed a fault at the decoding site, and Valgrind identified an **invalid read of size 1**.
+## Methodology and selected experiments
 
-This workstream includes a [bounds-check patch](patches/font_xor_bounds_check.patch) and [regression evidence](data/regression_results.tsv). The patch prevented the same ASan-detected fault on the tested malformed inputs, with some inputs correctly rejected; this is **not** a proof of complete memory safety or a claim of an upstream contribution.
+![Build, fuzz, triage, minimize and validate](assets/workflow.png)
 
-[Technical vulnerability write-up →](docs/VULNERABILITY.md)
+**Target:** [libmobi](https://github.com/bfabiszewski/libmobi) v0.10 (`aac5b1f578b284b2f886d6d25cde22a33d8534f8`) · **Format:** MOBI · **CLI:** `mobitool`  
+**Environment:** Kali Linux 2026.3 (VMware), Clang 21.1.8, Honggfuzz, ASan, UBSan and Valgrind.
 
-## Reproducible checks (no MOBI redistribution needed)
+I built instrumented variants, ran **21 numbered campaigns**, triaged crashes and timeouts, investigated a 15-token dictionary, minimized crashing inputs and corpora, and checked a defensive patch. **Four campaigns lack parseable final summaries**; configuration errors and minimization jobs are not treated as controlled fuzzing runs.
 
-Clone this repository, then run:
+![ASan / no-ASan campaign comparison](assets/asan_controlled.png)
+
+| ID | Condition | Executions | Outcome |
+| --- | --- | ---: | --- |
+| HF-09 | ASan; expanded corpus; 8 h | 565,277 | Historical crash |
+| HF-12 | No ASan; 9 seeds; 1 h | 41,707 | No crash |
+| HF-13 | ASan; 9 seeds; 1 h | 84,003 | Same historical crash |
+| HF-19 | UBSan build + feedback; 1 h | 36,491 | Same fault, corroborated under ASan |
+
+**Interpretation:** These iteration counts are *not* separately measured mutation operations. ASan/no-ASan results do not establish a causal throughput advantage. The UBSan run did not establish a distinct UBSan diagnostic. Dictionary experiments (two repeats per condition) showed no consistent benefit. HF-04's timeout-related signals are **not additional vulnerabilities**.
+
+### Coverage-preserving minimization
+
+![Original and minimized corpus sizes](assets/corpus_bytes.png)
+
+The corpus went from **1,467 → 995 inputs** and **480,881,076 → 276,162,698 bytes**. Direct comparison of archived LCOV exports found exactly the same covered identifiers: **5,921 lines, 2,395 branches and 276 functions**. This is **LLVM source coverage**, not Honggfuzz's internal coverage metric.
+
+[Complete campaign audit, dictionary comparisons and caveats →](docs/RESULTS.md)
+
+## Verify the published data
 
 ```bash
+python3 -m unittest discover -s tests -v
 python3 scripts/compare_lcov.py data/coverage/original.lcov data/coverage/minimized.lcov
 python3 scripts/summarize_campaigns.py data/campaigns.csv
-python3 -m unittest discover -s tests -v
 ```
 
-These commands use Python's standard library and validate the **published data**; they do not rebuild libmobi or rerun all 21 fuzzing campaigns.
+These standard-library Python checks also run in [GitHub Actions](.github/workflows/data-validation.yml). **They validate published records; they do not rerun the original fuzzing campaigns or crashes.** The original MOBI seeds/crash files are omitted because redistribution permission was not established. A deterministic [one-byte reproducer generator](scripts/derive_reproducer.py) verifies the SHA-256 of a separately, lawfully obtained seed; see [reproducibility instructions](docs/REPRODUCIBILITY.md).
 
-To re-create the one-byte proof of concept locally, you must **legally obtain the exact original MOBI seed** whose SHA-256 is in [`data/sample_manifest.json`](data/sample_manifest.json). This repository does not redistribute third-party or permission-uncertain MOBI files:
+## Repository map
 
-```bash
-python3 scripts/derive_reproducer.py /path/to/sample-obfuscated-fonts.mobi /tmp/one-byte-reproducer.mobi
-```
-
-[Full reproduction environment, build flags and boundaries →](docs/REPRODUCIBILITY.md)
-
-## Repository guide
-
-| Location | Content |
+| Location | Contents |
 | --- | --- |
-| [`report/technical_report.pdf`](report/technical_report.pdf) | Full technical report, including methodology, figures and limitations |
-| [`docs/RESULTS.md`](docs/RESULTS.md) | Comparison of experimental conditions and findings |
-| [`docs/VULNERABILITY.md`](docs/VULNERABILITY.md) | Root cause, reproducers, patch and regression interpretation |
-| [`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md) | Target pinning, environment, commands and limitations |
-| [`docs/OSS_FUZZ_CHECK.md`](docs/OSS_FUZZ_CHECK.md) | Public-registry investigation (23 Oct 2026) |
-| [`data/campaigns.csv`](data/campaigns.csv) | Curated campaign audit; incomplete entries explicitly marked |
-| [`data/coverage/*.lcov`](data/coverage/) | Published LLVM coverage exports with privacy-normalized source paths |
-| [`data/regression_results.tsv`](data/regression_results.tsv) | Recorded vulnerable vs patched ASan regression outcomes |
-| [`evidence/`](evidence/) | Small reports, representative sanitizer excerpts and build evidence |
-| [`scripts/`](scripts/) | Portable audit scripts and deterministic one-byte reproducer generator |
-| [`patches/`](patches/) | Researcher-authored demonstration patch for archived vulnerable v0.10 |
+| [Vulnerability write-up](docs/VULNERABILITY.md) | Root cause, minimization and regression |
+| [Experimental results](docs/RESULTS.md) | 21 campaigns, comparison and limitations |
+| [Full technical PDF](report/technical_report.pdf) | Detailed methodology and evidence |
+| [Reproducibility](docs/REPRODUCIBILITY.md) | Build flags, environment and constraints |
+| [`data/`](data/) and [`evidence/`](evidence/) | Coverage exports, audit table, sanitizer evidence |
+| [`scripts/`](scripts/), [`tests/`](tests/), [`patches/`](patches/) | Audit automation, tests and defensive patch |
+| [OSS-Fuzz check](docs/OSS_FUZZ_CHECK.md) | Public registration check (23 October 2026) |
 
-## Source, credit, disclosure and license scope
+**Skills demonstrated:** Coverage-guided fuzzing · C memory-safety analysis · Sanitizers · Crash deduplication · Root-cause analysis · Input/corpus minimization · Regression testing · LLVM LCOV · Python automation.
 
-- Upstream library: [bfabiszewski/libmobi](https://github.com/bfabiszewski/libmobi), licensed **LGPL-3.0-or-later** by its authors. No copy of upstream libmobi source is distributed here.
-- Honggfuzz is an independently maintained fuzzing tool; no copy of its source is distributed here.
-- Historical bug credit belongs to upstream maintainers and original reporters. This work documents **independent reproduction and analysis**; it does not claim first discovery, upstream patch submission, or a novel CVE.
-- The input samples/crash MOBI binaries and bulk fuzzing corpus are **not published**, pending redistribution-rights verification. Checksums and a generator are included instead.
-- This repository isolates the Honggfuzz workstream from other students' contributions. See [attribution notes](docs/PUBLICATION_AND_ATTRIBUTION.md) before publication.
-- **No blanket license has been granted for the entire repository.** If adding a license, ensure you have the rights to license every included file, and preserve independent upstream licenses.
+---
 
-**Research completed:** October 2026 | **Status:** retrospective test of an outdated, fixed target release.
+*Academic research completed October 2026. Historical bug credit belongs to the [libmobi maintainers](https://github.com/bfabiszewski/libmobi). No first discovery, upstream patch submission, or novel CVE is claimed. Four final logs are missing; see the [evidence limitations](docs/REPRODUCIBILITY.md) and [publication/attribution notes](docs/PUBLICATION_AND_ATTRIBUTION.md). No blanket license is asserted for all materials in this repository.*
